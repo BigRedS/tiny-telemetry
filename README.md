@@ -1,4 +1,4 @@
-# Tiny Telemetry
+# <img src="assets/logo.png" alt="" width="48" height="48" style="vertical-align: middle; margin-right: 10px;" /> Tiny Telemetry
 
 A single Docker image that continuously emits **traces**, **metrics**, and **logs** for testing OpenTelemetry pipelines. It simulates a distributed application with three services (A → B → C) in one container, with optional simulated failures.
 
