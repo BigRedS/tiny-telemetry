@@ -64,37 +64,15 @@ docker run --rm \
   tiny-telemetry
 ```
 
-**Docker Compose** (with a collector)
+**Docker Compose** (with a collector): see [examples/docker-compose.yaml](examples/docker-compose.yaml). From repo root:
 
-```yaml
-services:
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    command: ["--config=/etc/otel.yaml"]
-    volumes:
-      - ./otel.yaml:/etc/otel.yaml
-    ports:
-      - "4317:4317"
-      - "4318:4318"
-
-  tiny-telemetry:
-    build: .
-    environment:
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
-      TELEMETRY_INTERVAL_SECONDS: 5
-      FAILURE_RATE: 0.1
-    depends_on:
-      - otel-collector
+```bash
+docker compose -f examples/docker-compose.yaml up --build
 ```
 
-**Kubernetes / ECS**
+**Kubernetes / ECS**: see [examples/](examples/) for ready-to-use manifests. Set the same env vars in your pod/task; point `OTEL_EXPORTER_OTLP_ENDPOINT` at your collector. The image has no required volume mounts or ports; it only needs network access to the collector.
 
-Set the same variables in your pod/task definition. Point `OTEL_EXPORTER_OTLP_ENDPOINT` at your collector (e.g. service name or load balancer). The image has no required volume mounts or ports; it only needs network access to the collector.
-
-**ECS (Fargate) example**
-
-See `ecs-task-definition.json`. Replace:
+**ECS (Fargate)**: [examples/ecs-task-definition.json](examples/ecs-task-definition.json). Replace:
 
 - `YOUR_ACCOUNT_ID`, `YOUR_REGION` in execution/task role ARNs and image URI
 - Image: push the built image to ECR and use that URI
@@ -104,9 +82,13 @@ See `ecs-task-definition.json`. Replace:
 Register and run:
 
 ```bash
-aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json
+aws ecs register-task-definition --cli-input-json file://examples/ecs-task-definition.json
 aws ecs run-task --cluster YOUR_CLUSTER --task-definition tiny-telemetry --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-xxx],securityGroups=[sg-xxx],assignPublicIp=ENABLED}"
 ```
+
+**Kubernetes**: [examples/kubernetes.yaml](examples/kubernetes.yaml). Adjust `OTEL_EXPORTER_OTLP_ENDPOINT` to your collector; then `kubectl apply -f examples/kubernetes.yaml`.
+
+**Other runners** (no example included): the same image and env vars work on **Google Cloud Run**, **Azure Container Instances**, **HashiCorp Nomad**, and **Podman** (e.g. `podman run` or `podman-compose`). Use the Docker run example as a template and set the OTLP endpoint for your environment.
 
 ## How it works
 

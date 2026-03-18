@@ -1,0 +1,32 @@
+# Minimal Kubernetes example. Requires an OTLP collector in the cluster or reachable endpoint.
+# Replace OTEL_EXPORTER_OTLP_ENDPOINT with your collector Service (e.g. http://otel-collector.observability.svc:4318) or external URL.
+# Apply: kubectl apply -f examples/kubernetes.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiny-telemetry
+  labels:
+    app: tiny-telemetry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tiny-telemetry
+  template:
+    metadata:
+      labels:
+        app: tiny-telemetry
+    spec:
+      containers:
+        - name: tiny-telemetry
+          image: tiny-telemetry:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector.observability.svc.cluster.local:4318"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "http/protobuf"
+            - name: TELEMETRY_INTERVAL_SECONDS
+              value: "5"
+            - name: FAILURE_RATE
+              value: "0.1"
