@@ -97,6 +97,8 @@ aws ecs run-task --cluster YOUR_CLUSTER --task-definition tiny-telemetry --launc
 - Service-c randomly returns 500 based on `FAILURE_RATE`, so you can test error handling and red in traces.
 - All telemetry is sent to the configured OTLP endpoint (traces; metrics and logs if enabled via env).
 
+This project was mostly written with [Cursor](https://cursor.com).
+
 ## License
 
 Two-clause BSD. See [LICENSE](LICENSE).
